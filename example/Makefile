@@ -44,6 +44,9 @@ LIBDIR =
 # Libraries
 LIBS =
 
+# Custom linker script
+#LDSCRIPT =
+
 
 #######################################
 # Gecko SDK
@@ -80,22 +83,25 @@ ASM_SOURCES += ${GECKOSDK}/platform/Device/SiliconLabs/EFR32FG13P/Source/GCC/sta
 C_SOURCES += ${GECKOSDK}/platform/Device/SiliconLabs/EFR32FG13P/Source/system_efr32fg13p.c
 
 # Linker script
-LDSCRIPT = ${GECKOSDK}/platform/Device/SiliconLabs/EFR32FG13P/Source/GCC/efr32fg13p.ld
+LDSCRIPT ?= ${GECKOSDK}/platform/Device/SiliconLabs/EFR32FG13P/Source/GCC/efr32fg13p.ld
 
 # RAIL library
+C_INCLUDES += -I${GECKOSDK}/platform/radio/rail_lib/common
+C_INCLUDES += -I${GECKOSDK}/platform/radio/rail_lib/chip/efr32/efr32xg1x
 LIBDIR += -L${GECKOSDK}/platform/radio/rail_lib/autogen/librail_release
 LIBS += -lrail_efr32xg13_gcc_release
+
+# Processor core
+MCU = -mcpu=cortex-m4 -mthumb
+
+# Float ABI
+#MCU += -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 
 
 #######################################
 # Compiler flags
 #######################################
 
-# Processor core
-MCU = -mcpu=cortex-m4 -mthumb
-#MCU += -mfpu=fpv4-sp-d16 -mfloat-abi=hard
-
-# Libraries
 LIBS += -lc -lm -lnosys
 LDFLAGS += $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
@@ -106,6 +112,9 @@ CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -Wextra -fdata-sections -f
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
 endif
+
+# Generate dependency information
+CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 
 
 #######################################
@@ -122,12 +131,12 @@ BIN = $(CP) -O binary -S
 
 
 #######################################
-# Build the application
+# Build targets and commands
 #######################################
 
 # default action: build all
 #all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
-all: $(BUILD_DIR)/$(TARGET).elf
+all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).bin
 
 # list of objects
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
@@ -155,15 +164,10 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 $(BUILD_DIR):
 	mkdir $@
 
-#######################################
-# clean up
-#######################################
 clean:
 	-rm -fR $(BUILD_DIR)
 
 .PHONY: all clean
 
-#######################################
-# dependencies
-#######################################
+# Dependencies
 -include $(wildcard $(BUILD_DIR)/*.d)
