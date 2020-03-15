@@ -1,5 +1,4 @@
-# Makefile for EFR32 projects using the Gecko SDK,
-# partially based on STM32CubeMX Makefiles.
+# Makefile for EFR32 programs using the Gecko SDK
 
 #######################################
 # Project configuration
@@ -16,13 +15,16 @@ OPT = -O1
 DEBUG = 1
 
 # C sources
-C_SOURCES = $(wildcard *.c)
+C_SOURCES = $(wildcard *.c */*.c)
 
 # C include paths
 C_INCLUDES = -I.
 
 # C defines
 C_DEFS =
+
+# Other C flags
+CFLAGS =
 
 # Assembly sources
 ASM_SOURCES =
@@ -32,6 +34,9 @@ AS_INCLUDES =
 
 # Assembly defines
 AS_DEFS =
+
+# Other assembler flags
+ASFLAGS =
 
 # Library paths
 LIBDIR =
@@ -47,9 +52,17 @@ LIBS =
 # Path to Gecko SDK
 GECKOSDK = ${HOME}/SimplicityStudio_v4/developer/sdks/gecko_sdk_suite/v2.6
 
-# EMLIB and CMSIS
+# CMSIS
+C_INCLUDES += -I${GECKOSDK}/platform/CMSIS/Include
+
+# EMLIB
 C_SOURCES += $(wildcard ${GECKOSDK}/platform/emlib/src/*.c)
-C_INCLUDES += -I${GECKOSDK}/platform/emlib/inc -I${GECKOSDK}/platform/CMSIS/Include
+C_INCLUDES += -I${GECKOSDK}/platform/emlib/inc
+
+# EMDRV libraries
+#C_INCLUDES += -I${GECKOSDK}/platform/emdrv/common/inc
+#C_SOURCES += $(wildcard ${GECKOSDK}/platform/emdrv/rtcdrv/src/*.c)
+#C_INCLUDES += -I${GECKOSDK}/platform/emdrv/rtcdrv/inc -I${GECKOSDK}/platform/emdrv/rtcdrv/config
 
 
 #######################################
@@ -78,12 +91,12 @@ LIBS += -lrail_efr32xg13_gcc_release
 # Compiler flags
 #######################################
 
+# Processor core
 MCU = -mcpu=cortex-m4 -mthumb
 #MCU += -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 
 # Libraries
 LIBS += -lc -lm -lnosys
-LIBDIR +=
 LDFLAGS += $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 ASFLAGS += $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -Wextra -fdata-sections -ffunction-sections
