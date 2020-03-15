@@ -44,6 +44,28 @@ Use these GDB commands to flash and run the program:
     c
 
 
+# Using Visual Studio Code
+
+VS Code can be used as an IDE for development and debugging.
+
+The ARM toolchain is also available as a VS Code extension,
+which seems to be the easiest way to install it on Windows.
+
+Install and use the following extensions:
+
+* **C/C++** (Microsoft): for C syntax highlighting and code browsing
+* **Cortex-Debug** (marus25): to debug ARM microcontrollers
+* **windows-arm-none-eabi**, **linux-arm-none-eabi** or **darwin-arm-none-eabi**
+  (metalcode-eu): optional, to install the toolchain through VS Code
+
+Example configuration for Cortex-Debug is under `example/.vscode`.
+
+To start programming, choose *File -> Open Folder*
+and choose the `example` folder.
+Press Ctrl+Shift+B to compile and F5 to start debugging.
+Remember to compile the code before debugging.
+
+
 # Licensing
 
 The Makefile template, example program and this documentation
