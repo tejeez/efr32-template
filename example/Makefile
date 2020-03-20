@@ -24,7 +24,7 @@ C_INCLUDES = -I.
 C_DEFS =
 
 # Other C flags
-CFLAGS =
+C_FLAGS = -std=gnu11 -Wall -Wextra -fdata-sections -ffunction-sections
 
 # Assembly sources
 ASM_SOURCES =
@@ -36,7 +36,7 @@ AS_INCLUDES =
 AS_DEFS =
 
 # Other assembler flags
-ASFLAGS =
+AS_FLAGS = -std=gnu11 -Wall -Wextra -fdata-sections -ffunction-sections
 
 # Library paths
 LIBDIR =
@@ -47,25 +47,28 @@ LIBS =
 # Custom linker script
 #LDSCRIPT =
 
+# Other linker flags
+LD_FLAGS =
+
 
 #######################################
-# Gecko SDK
+# CMSIS and Gecko SDK
 #######################################
 
 # Path to Gecko SDK
-GECKOSDK = ${HOME}/SimplicityStudio_v4/developer/sdks/gecko_sdk_suite/v2.6
+GECKOSDK = $(HOME)/SimplicityStudio_v4/developer/sdks/gecko_sdk_suite/v2.7
 
 # CMSIS
-C_INCLUDES += -I${GECKOSDK}/platform/CMSIS/Include
+C_INCLUDES += -I$(GECKOSDK)/platform/CMSIS/Include
 
 # EMLIB
-C_SOURCES += $(wildcard ${GECKOSDK}/platform/emlib/src/*.c)
-C_INCLUDES += -I${GECKOSDK}/platform/emlib/inc
+C_SOURCES += $(wildcard $(GECKOSDK)/platform/emlib/src/*.c)
+C_INCLUDES += -I$(GECKOSDK)/platform/emlib/inc
 
 # EMDRV libraries
-#C_INCLUDES += -I${GECKOSDK}/platform/emdrv/common/inc
-#C_SOURCES += $(wildcard ${GECKOSDK}/platform/emdrv/rtcdrv/src/*.c)
-#C_INCLUDES += -I${GECKOSDK}/platform/emdrv/rtcdrv/inc -I${GECKOSDK}/platform/emdrv/rtcdrv/config
+#C_INCLUDES += -I$(GECKOSDK)/platform/emdrv/common/inc
+#C_SOURCES += $(wildcard $(GECKOSDK)/platform/emdrv/rtcdrv/src/*.c)
+#C_INCLUDES += -I$(GECKOSDK)/platform/emdrv/rtcdrv/inc -I$(GECKOSDK)/platform/emdrv/rtcdrv/config
 
 
 #######################################
@@ -76,38 +79,38 @@ C_INCLUDES += -I${GECKOSDK}/platform/emlib/inc
 C_DEFS += -DEFR32FG13P231F512GM48
 
 # Include paths
-C_INCLUDES += -I${GECKOSDK}/platform/Device/SiliconLabs/EFR32FG13P/Include
+C_INCLUDES += -I$(GECKOSDK)/platform/Device/SiliconLabs/EFR32FG13P/Include
 
 # Startup and system code
-ASM_SOURCES += ${GECKOSDK}/platform/Device/SiliconLabs/EFR32FG13P/Source/GCC/startup_efr32fg13p.S
-C_SOURCES += ${GECKOSDK}/platform/Device/SiliconLabs/EFR32FG13P/Source/system_efr32fg13p.c
+ASM_SOURCES += $(GECKOSDK)/platform/Device/SiliconLabs/EFR32FG13P/Source/GCC/startup_efr32fg13p.S
+C_SOURCES += $(GECKOSDK)/platform/Device/SiliconLabs/EFR32FG13P/Source/system_efr32fg13p.c
 
 # Linker script
-LDSCRIPT ?= ${GECKOSDK}/platform/Device/SiliconLabs/EFR32FG13P/Source/GCC/efr32fg13p.ld
+LDSCRIPT ?= $(GECKOSDK)/platform/Device/SiliconLabs/EFR32FG13P/Source/GCC/efr32fg13p.ld
 
 # RAIL library
-C_INCLUDES += -I${GECKOSDK}/platform/radio/rail_lib/common
-C_INCLUDES += -I${GECKOSDK}/platform/radio/rail_lib/chip/efr32/efr32xg1x
-LIBDIR += -L${GECKOSDK}/platform/radio/rail_lib/autogen/librail_release
+C_INCLUDES += -I$(GECKOSDK)/platform/radio/rail_lib/common
+C_INCLUDES += -I$(GECKOSDK)/platform/radio/rail_lib/chip/efr32/efr32xg1x
+LIBDIR += -L$(GECKOSDK)/platform/radio/rail_lib/autogen/librail_release
 LIBS += -lrail_efr32xg13_gcc_release
 
 # Processor core
 MCU = -mcpu=cortex-m4 -mthumb
 
 # Float ABI
-#MCU += -mfpu=fpv4-sp-d16 -mfloat-abi=hard
+MCU += -mfpu=fpv4-sp-d16 -mfloat-abi=softfp
 
 
 #######################################
 # Compiler flags
 #######################################
 
+# Link the standard library
 LIBS += -lc -lm -lnosys
-LDFLAGS += $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections $(LD_FLAGS)
 
-ASFLAGS += $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -Wextra -fdata-sections -ffunction-sections
-
-CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -Wextra -fdata-sections -ffunction-sections
+ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) $(AS_FLAGS)
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) $(C_FLAGS)
 
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2

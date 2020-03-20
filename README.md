@@ -21,6 +21,25 @@ It looks a bit long and complicated, but that's partly due to the
 number of comments and the clear separation of EFR32-specific parts
 from rest of the commands.
 
+For an example of a more complex project for EFR32MG1P232F256GM48, see
+https://github.com/tejeez/geckokapula/tree/rail2port/firmware
+
+
+# Hardware
+
+EFR32 chips are programmed using Serial Wire Debug (SWD),
+which needs at least the pins SWCLK and SWDIO.
+
+The examples here assume a Segger J-Link is used. Other SWD adapters
+may also work with a custom OpenOCD configuration file.
+
+The hardware could be, for example, a
+[Gecko Starter Kit](https://www.silabs.com/products/development-tools/wireless/mesh-networking/mighty-gecko-starter-kit)
+with an integrated J-Link,
+or any EFR32-based board connected to a J-Link.
+[Cheap J-Link compatible adapters](https://www.ebay.com/itm/1PCS-Jlink-for-SWD-Jlink-3-Wire-for-STM32-on-SWD-Debug-NEW/152246311385)
+are also known to work.
+
 
 # Using command line tools on Ubuntu
 
@@ -88,6 +107,9 @@ To start programming, choose *File -> Open Folder*
 and choose the `example` folder.
 Press Ctrl+Shift+B to compile and F5 to start debugging.
 Remember to compile the code before debugging.
+
+To make IntelliSense work for EMLIB functions, fix the defines and paths in
+*.vscode/c_cpp_properties.json* to match your EFR32 model and SDK location.
 
 
 # Licensing
